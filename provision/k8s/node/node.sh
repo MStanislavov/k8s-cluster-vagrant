@@ -6,7 +6,7 @@ COMPONENT=$1
 
 echo -e "${ORANGE}${COMPONENT} provisioning ${YELLOW}START${ORANGE}${NC}"
 
-# Setup for K8S Node servers
+# Set up a K8S worker node and join it to the cluster
 
 sudo apt-get install nfs-common -y
 
@@ -14,7 +14,7 @@ set -euxo pipefail
 
 config_path="/vagrant/configs"
 sudo mkdir -p ~/.kube
-sudo sudo cp -i $config_path/config ~/.kube/
+sudo cp -i $config_path/config ~/.kube/
 /bin/bash $config_path/join.sh -v
 
 sudo -i -u vagrant bash << EOF
@@ -26,7 +26,7 @@ NODENAME=$(hostname -s)
 kubectl label node $(hostname -s) node-role.kubernetes.io/worker=worker
 EOF
 
-echo Sleeping 20 to make sure worker node gets registed to k8s cluster
+echo "Waiting 20 seconds for the worker node to register with the cluster..."
 sleep 20
 
 echo -e "${ORANGE}${COMPONENT} provisioning ${GREEN}DONE${ORANGE}${NC}"

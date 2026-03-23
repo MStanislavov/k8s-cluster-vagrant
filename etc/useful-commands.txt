@@ -7,7 +7,7 @@
     helm repo pull <repo-name>/<helm-name> --version <version>
 
 -- to push helm to repo:
-    curl -u <username>:<passowrd> https://itsnexus.iskratel.mk/repository/softvercentar-helm/ --upload-file <helm-chart-tgz-file> -v
+    curl -u <username>:<password> https://itsnexus.iskratel.mk/repository/softvercentar-helm/ --upload-file <helm-chart-tgz-file> -v
 
 -- if on restart, the k8s cluster does not schedule job execution, 
     (EVEN AFTER FOLLOWING THE "Between restarts" guide in the README.md file):

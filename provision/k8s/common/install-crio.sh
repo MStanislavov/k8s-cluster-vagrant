@@ -7,7 +7,7 @@ OS=$1
 VERSION=$2
 ENVIRONMENT=$3
 
-# Create the .conf file to load the modules at bootup
+# Load required kernel modules at boot (overlay for filesystems, br_netfilter for bridged traffic)
 cat <<EOF | sudo tee /etc/modules-load.d/crio.conf
 overlay
 br_netfilter
@@ -16,7 +16,7 @@ EOF
 sudo modprobe overlay
 sudo modprobe br_netfilter
 
-# Set up required sysctl params, these persist across reboots.
+# Configure sysctl params required by Kubernetes networking (persists across reboots)
 cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
 net.bridge.bridge-nf-call-iptables  = 1
 net.ipv4.ip_forward                 = 1

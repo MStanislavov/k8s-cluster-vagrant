@@ -9,7 +9,7 @@ COMPONENT=$4
 
 echo -e "${ORANGE}${COMPONENT} provisioning ${YELLOW}START${ORANGE}${NC}"
 
-# Setup for K8S Control Plane (Master) servers
+# Set up the K8S control plane (master) node
 
 set -euxo pipefail
 
@@ -26,9 +26,8 @@ mkdir -p "$HOME"/.kube
 sudo cp -i /etc/kubernetes/admin.conf "$HOME"/.kube/config
 sudo chown "$(id -u)":"$(id -g)" "$HOME"/.kube/config
 
-# Save Configs to shared /Vagrant location
-
-# For Vagrant re-runs, check if there is existing configs in the location and delete it for saving new configuration.
+# Save configs to the shared /vagrant directory.
+# On re-runs, clear any existing configs before writing new ones.
 
 config_path="/vagrant/configs"
 
@@ -67,18 +66,18 @@ chmod 700 get_helm.sh
 
 sudo -u vagrant helm repo update
 
-# Master node is also a worker
+# Remove the control-plane taint so pods can be scheduled on the master node
 kubectl taint nodes --all node-role.kubernetes.io/control-plane:NoSchedule-
 
-# Install all custom components
+# Install custom components asynchronously (Reloader, etc.)
 sudo mkdir -p /opt/logs/components
 nohup bash /vagrant/provision/k8s/components/install-components.sh > /opt/logs/components/components-provisioning.log 2>&1 &
 
-# Open all ports
+# Expand the NodePort range to allow all ports (0-65535)
 sudo sed -i '20i \ \ \ \ - --service-node-port-range=0-65535' /etc/kubernetes/manifests/kube-apiserver.yaml
 sudo service kubelet restart
 
-# NFS server and client utilities
+# Install NFS server to provide shared storage across nodes
 sudo apt-get install nfs-kernel-server -y
 sudo apt-get install nfs-common -y
 

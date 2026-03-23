@@ -28,19 +28,19 @@ Vagrant.configure("2") do |config|
   config.vm.box_url = "file://./boxes/vbox-ubuntu/bento-ubuntu-22-04.box"
   config.ssh.private_key_path = ["./boxes/vbox-ubuntu/private_key"]  
 
-  # K8S Master VM
+  # K8S Master (Control Plane) VM
   config.vm.define "master" do |master|
     master.vm.hostname = "master-node"
     master.vm.network "private_network", ip: settings["network"]["control_ip"]
-    ###Port-Forwarding
+    # Port forwarding from host to master VM
     master.vm.network "forwarded_port", guest: 22, host: 30022
     master.vm.network "forwarded_port", guest: 3000, host: 33000
 	  master.vm.network "forwarded_port", guest: 30909, host: 30909
 	  master.vm.network "forwarded_port", guest: 30080, host: 30080
 	  master.vm.network "forwarded_port", guest: 30001, host: 30001
 	  master.vm.network "forwarded_port", guest: 30000, host: 30000
-	 ###Added public network###
-	  #master.vm.network "public_network", bridge: "eth0", use_dhcp_assigned_default_route: true
+	  # Public network (uncomment to bridge to host NIC)
+	  # master.vm.network "public_network", bridge: "eth0", use_dhcp_assigned_default_route: true
     if settings["shared_folders"]
       settings["shared_folders"].each do |shared_folder|
         master.vm.synced_folder shared_folder["host_path"], shared_folder["vm_path"]
@@ -68,13 +68,13 @@ Vagrant.configure("2") do |config|
       path: "provision/k8s/master/master_vm_provision.sh"
   end
 
-  # K8S Nodes
+  # K8S Worker Nodes
   (1..NUM_WORKER_NODES).each do |i|
     config.vm.define "node0#{i}" do |node|
       node.vm.hostname = "worker-node0#{i}"
       node.vm.network "private_network", ip: IP_NW + "#{IP_START + i}"
-	    
-      ###Added public network###
+
+      # Public network (uncomment to bridge to host NIC)
 	    # node.vm.network "public_network", bridge: "eth0", use_dhcp_assigned_default_route: true
       if settings["shared_folders"]
         settings["shared_folders"].each do |shared_folder|

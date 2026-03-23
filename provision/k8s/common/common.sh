@@ -1,5 +1,5 @@
 #!/bin/bash
-# Common setup for all K8S servers (Control Plane and Nodes)
+# Common setup shared by all K8S nodes (control plane and workers)
 
 source /vagrant/environment.properties
 source /vagrant/provision/config/error_handling.sh
@@ -19,7 +19,7 @@ set -euxo pipefail
 sudo service ufw stop
 sudo ufw disable
 
-# DNS Setting
+# Configure DNS servers
 sudo mkdir /etc/systemd/resolved.conf.d/
 cat <<EOF | sudo tee /etc/systemd/resolved.conf.d/dns_servers.conf
 [Resolve]
@@ -31,7 +31,7 @@ sudo systemctl restart systemd-resolved
 # Disable swap
 sudo swapoff -a
 
-# Keeps the swap off during reboot
+# Ensure swap stays off after reboot
 (crontab -l 2>/dev/null; echo "@reboot /sbin/swapoff -a") | crontab - || true
 sudo apt-get update -y
 

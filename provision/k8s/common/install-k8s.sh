@@ -19,14 +19,14 @@ echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.
 # Update package listings
 sudo apt-get update -y
 
-# install k8s packages
+# Install K8S packages and pin their versions to prevent unintended upgrades
 sudo apt-get install -y kubelet kubectl kubeadm
 sudo apt-mark hold kubelet kubeadm kubectl
 
 # Install jq for JSON processing
 sudo apt-get install -y jq
 
-# Configure kubelet with the local node IP
+# Configure kubelet to advertise the correct node IP (eth1 on the private network)
 local_ip="$(ip --json a s | jq -r '.[] | if .ifname == "eth1" then .addr_info[] | if .family == "inet" then .local else empty end else empty end')"
 cat > /etc/default/kubelet << EOF
 KUBELET_EXTRA_ARGS=--node-ip=$local_ip
